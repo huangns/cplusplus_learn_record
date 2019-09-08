@@ -5,10 +5,27 @@
 
 using namespace std;
 
-auto myfunc()
+unique_ptr<string> myfunc()
 {
 	return unique_ptr<string>(new string("unique_ptr -> shared_ptr"));//这是个右值
 }
+
+unique_ptr<string> tunique()
+{
+    //从函数返回一个局部的unique_ptr对象，会返回这个局部对象，导致系统给我们
+    //生成一个局部对象，导致系统给我们生成一个临时unique_ptr对象，调用unique_ptr
+    //对象的移动构造函数
+    unique_ptr<string> pr(new string("return unique_ptr to unique_ptr"));
+    return pr;	
+}
+
+void myUniqueDelete(string* p)
+{
+    delete p;
+    std::cout<<"invoking myUniqueDelete function."<<std::endl;
+    p = nullptr;
+}
+
 
 int main()
 {
@@ -103,4 +120,27 @@ int main()
 	unique_ptr<string> ps11(new string("unique_ptr -> shared_ptr 2"));
 	shared_ptr<string> ps12 = std::move(ps11);
 	std::cout<<"ps12: "<<*ps12<<std::endl;
+
+        
+       std::cout<<"---------- second part ---------------"<<std::endl;
+       unique_ptr<string> pr = tunique();
+       std::cout<<"*pr: "<<*pr<<std::endl;
+    //指定删除器， delete: 默认删除器
+    //a)指定删除器
+    //格式： unique_ptr<指向的对象类型，删除器的类型> 智能指针变量名
+    //删除器：可调用对象，比如函数，类重载了()
+    //shared_ptr的删除器比较简单，shared_ptr<int> p(new int(), mydelete);
+    //unique_ptr删除器相对复杂一点，多了一步，先要在类型模板参数中传递类型
+    //类型名，然后在参数中再给出具体的删除器
+    //typedef void(* fp)(string* );
+    using fp = void(*)(string *);
+    unique_ptr<string, fp> ptr_fp(new string("my delete for unique"),myUniqueDelete);
+    std::cout<<"*ptr_fp: "<<*ptr_fp<<std::endl;
+    //删除器额外说明
+    //shared_ptr：就算两个shared_ptr指定的删除器不相同，只要他们所指向的对象相同，那么这两个shared_ptr也属于同一个类型
+    //但是unique_ptr不一样，指定unique_ptr中的删除器会影响unique_ptr的类型
+    //删除器不同，但指向类型一样的shared_ptr，可以放到同一个容器里面，vector<shared_ptr ...>
+    //unique_ptr如果删除器不同，那么等于整个unique_ptr的类型不同，无法放在同一个容器中
+
+    //尺寸问题：通常情况下，unique_ptr的尺寸和裸指针一样
 }
