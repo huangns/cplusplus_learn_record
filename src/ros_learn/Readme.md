@@ -1,0 +1,4 @@
+rosrun node_test pub_node
+rosrun node_test sub_node
+node_test 是src里面的一个文件夹， pub_node 和 sub_node是该文件夹下使用add_executable生成的可执行文件节点
+发布的话题名在构造publisher对象生成的设置
