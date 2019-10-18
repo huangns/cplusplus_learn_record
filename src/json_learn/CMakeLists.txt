@@ -1,0 +1,11 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
+PROJECT(CALIBRATION_DATA_PARSE)
+ADD_DEFINITIONS(-std=c++11)
+INCLUDE_DIRECTORIES(/usr/include/jsoncpp)
+INCLUDE_DIRECTORIES(/usr/include/eigen3)
+LINK_DIRECTORIES(/usr/lib/x86_64-linux-gnu)
+ADD_LIBRARY(calibration_parser SHARED  include/calibration_parser.cpp)
+TARGET_LINK_LIBRARIES(calibration_parser jsoncpp)
+ADD_EXECUTABLE(calibration_parse_test src/calibration_parse_test.cpp)
+TARGET_LINK_LIBRARIES(calibration_parse_test calibration_parser)
+
