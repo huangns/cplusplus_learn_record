@@ -8,6 +8,8 @@ project(data_capture_srv)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  rospy
+  roscpp
   message_generation
   message_runtime
   std_msgs
