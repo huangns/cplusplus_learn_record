@@ -39,3 +39,6 @@ private:
     std::vector<camera_struct> camera_vector;
     Eigen::Matrix4d T12;
 };
+
+
+bool stringToJsonFile(const std::string& json_str,const std::string& json_file_path);

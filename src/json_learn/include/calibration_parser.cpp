@@ -15,8 +15,9 @@ calibration_parser::calibration_parser(const std::string& json_file)
     {
         std::cout<<"open file error."<<std::endl;
     }
+    
     reader.parse(is,value);
-
+    
     camera_struct cs1;
     cs1.camera_model = value["camera_1"]["model"].asString();
     cs1.img_path = value["camera_1"]["img_path"].asString();
@@ -105,4 +106,20 @@ const std::vector<camera_struct>& calibration_parser::getCameraVector()
 const Eigen::Matrix4d& calibration_parser::getT12()
 {
     return T12;
+}
+
+
+bool stringToJsonFile(const std::string& json_str,const std::string& json_file_path)
+{
+  Json::Reader json_reader;
+  Json::Value json_value;
+  if(!json_reader.parse(json_str,json_value))
+  {
+    std::cerr<<"json str parse failed!"<<std::endl;
+    return false;
+  }
+  Json::StyledWriter styled_writer;
+  std::ofstream json_file(json_file_path);
+  json_file<<styled_writer.write(json_value);
+  return true;
 }
