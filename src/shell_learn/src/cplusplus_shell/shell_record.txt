@@ -1,0 +1,125 @@
+1./etc/shell 文件中列举了多种shell
+2.echo {HOME}得到home目录;
+3.变量的设置规则：
+3.1变量与变量内容以一个等号连接 myname=hns
+3.2变量名称只能是英文字母与数字，但是开头字符不能是数字;
+3.3 变量内容若有空格可以的使用双引号或者单引号将变量内容结合起来，但是双引号内的$符号可以保有原有的特性，而单引号内的特殊字符如$等，即$还是被当成$,仅为一般字符的显示形式而已,而""内部的$会将变量解释成变量内容，
+然后替换掉$(变量名字)，可以用转义字符\将特殊符号（如Enter,$,\,空格，'等）变成一般字符；
+3.4 在一串命令的执行中，还需要借助其他额外的命令所提供的信息的时候，可以使用反单引号[`]或者$(cmd)，是()而不是{}；
+3.5 若该变量为扩增变量内容的时候，则可以用"$变量名称"或者${变量}累加内容，如下内容：
+PATH="$PATH":/home/bin or PATH=${PATH}:/home/bin
+3.6 若该变量需要在其他子程序(子程序 子程序 子程序)中执行，则需要以export来使变量变成环境变量：
+export PATH
+如myname=hns
+echo ${myname} 输出 hns
+bash (进入子进程)
+echo ${myname} 输出为空
+exit
+
+export myname
+bash
+echo ${myname} 输出为hns
+exit
+
+unset myname
+
+3.7 取消变量的方法为使用unset: uset 变量名称；
+3.8 uname -r 得到内核版本信息
+mywork=$(pwd) or mywork=`pwd`
+echo ${mywork}
+变量指定后，想要在所有终端都能够使用，则可以将其写入到~/.bashrc文件中
+
+4.环境变量
+HOME显示home目录
+PATH 执行文件的查找路径
+LANG 语系数据
+RANDOM 随机数的变量，echo ${RANDOM}, 0-9之间的随机数 declare -i number=${RANDOM}*10/32768; echo $number
+环境变量与自定义变量的差异在于该变量是否会被子进程继续引用，子进程会继承父进程的环境变量，子进程不会继承父进程的自定义变量
+
+
+5.变量声明：
+declare [-aixr] variable
+-a:将后面名为variable的变量定义成为数组(类型)
+-i 整数类型
+-x 和export类型一样，将后面的variable定义成环境变量
+-r 将变量设置成readonly类型，该变量不可被更改内容，也不能unset
+
+6 数据流重定向
+标准输入stdin，代码为0 使用< or <<
+标准输出 stdout 代码为1，使用> or >>
+标准错误输出 代码为2 使用 2> or 2>>
+1>覆盖的方式将正确的数据输出到指定的文件或者设备上
+1>>累加的方式将正确的数据输出到指定的文件或者设备上
+2>覆盖的方式将错误的数据输出到指定的文件或者设备上
+2>>累加的方式将错误的数据输出到指定的文件或者设备上
+将stdout和stderr分别存到不同的文件中
+find /home -name .bashrc > list_right 2> list_error
+将错误的数据丢弃，屏幕上显示正确的数据
+find /home -name .bashrc 2> /dev/null
+将命令的数据全部写入名为list的文件中
+find /home -name .bashrc > list 2>&、
+1
+find /home -name .bashrc &>list
+
+< << 将原本需要由键盘输入的数据，该由文件内容来替换
+
+7命令执行的判断根据 ； && ||
+；一次执行多个命令，不论前一个命令是否执行正确
+cmd1 && cmd2 若cmd1执行完毕且正确执行 （$?=0） 则开始执行cmd2, 若cmd1执行完毕且为错误 （$?≠0），则cmd2不执行
+cmd1 || cmd2 若cmd1执行正确且正确执行$?=0,则cmd2不执行； 若cmd1执行完毕且为错误$?≠0,则开始执行cmd2
+
+8 管道pipe
+pipe 命令 | 仅仅能够处理经由前面一个命令传来的正确信息，也就是标准输出的信息，对于标准输入并没有直接处理的能力， 应要让标准错误可以被管道命令所使用，2>&1加入命令中
+每个管道后面接的第一个数据必定是命令，而且这个命令必须要能够接受标准输入的数据才行，这样的命令才可以是管道命令
+8.1 选取命令 cut grep
+选取命令通常针对一行一行的数据来分析的，而不是整篇信息分析
+cut 可以将一段信息的某一段cut出来，处理的信息是以行为单位的 cut -d '分割字符' -f fields
+echo ${PATH} | cut -d ':' -f 5 输出分隔后的第五个记录
+echo ${PATH} | cut -d ':' -f 3，5 输出分隔后的第3，5个记录
+-d: 后面接分隔字符，与 -f一起使用
+-f: 根据-d的分隔字符将一段信息分成数个字段，用-f取出第几段的意思
+-c:以字符的单位取出固定字符区间 
+export | cut -c 12- :从第12个字符开始到最后
+export | cut -c 12-20
+
+##grep
+grep [-acinv] [--color=auto] '查找字符' filename
+-a  将二进制文件以文本文件的方式查找数据
+-c: 计算找到查找字符的次数
+-i 忽略大小写的不同
+-n 顺便输出行号
+-v 反向选择，亦即显示出没有查找字符内容的那一行
+
+grep --color=auto 'MANPATH' /etc/man_db.conf 取出/etc/man_db.conf 内含MANPATH的那几行
+
+##sort man sort查询
+sort [-fbMnrtuk] [file or stdin]
+-f 忽略大小写的差异， 例如A与a视为编码相同
+-b 忽略最前面的空格字符部分
+-M 以月份的名字来排序
+-n 使用纯数字进行排序
+-u uniq 相同的数据中，仅仅出现一行代表
+-t 分隔符号 默认是用 【Tab】按键来分隔
+-k 以哪个区间field来进行排序的意思
+cat /etc/passwd | sort
+cat /etc/passwd | sort -t ':' -k 3
+
+##uniq [-ic]
+-i 忽略大小写字符的不同
+-c 进行计数
+
+last | cut -d ' ' -f1 | sort | uniq
+last | cut -d ' ' -f1 | sort | uniq -c
+
+## wc [-lwm]
+-l: 仅列出行
+-w: 仅列出多少字
+-m: 多少字符
+
+cat /etc/man_db.conf | wc
+
+last | grep [a-zA-Z] | grep -v 'wtmp' | grep -v 'reboot' | grep -v 'unknown' | wc -l
+
+#tee 双向重定向 tee [-a] file //-a 以累加append的方式将数据加入file中
+tee会将数据流分送到文件和屏幕
+last | tee last.list | cut -d ' ' -f1 //last.list此时会存last输出的所有信息，而screen输出的只有cut后的信息
