@@ -77,3 +77,143 @@ void func()
     }
     
 }
+
+
+## 迭代器
+### 分类依据
+迭代器的移动特性以及在迭代器上能够做的操作
+### 分类
++ 输出型迭代器 output iterator
++ 输入型迭代器 input iterator
++ 前向迭代器
++ 双向迭代器
++ 随机访问迭代器
+### 继承关系
++ 输出型迭代器
++ 输入型 ---> 前向迭 ----> 双向 ----> 随机访问
+
+### 列表说明
++ 输出迭代器 能力： 向前写入 提供者： ostream, inserter
++ 输入迭代器 能力： 向前读取一次 提供者： istream
++ 前向迭代器 能力： 向前读取 提供者： forward list, unorder containers
++ 双向迭代器 能力： 向前和向后读取 提供者： list set multiset map multimap
++ 随机存储迭代器 能力：以随机访问方式读取 提供者： array,vector,deque,string, C style array
+
+
+## 算法
+### 概述
+理解为函数模板(全局函数/全局函数模板)，算法的前两个形参的类型：一般是迭代器类型，用来
+表示容器中的元素的一个区间，通常是前闭后开。
++ 算法只要判断迭代器等于后边那个开区间，就表示迭代器结束
++ 如果第一个形参等于第二个形参，那就表示为一个空区间
++ 算法：是一种搭配迭代器来使用的全局函数，算法和具体的容器没关联，只跟迭代器
+有关联，只需要根据迭代器来开发算法，不需要理会具体的数据结构；but 虽然算法这种泛型编程方式，增加灵活性，但是缺失了直观性，某些
+数据结构(某些容器的迭代器)和算法之间的兼容性也不是那么好。
+
+### 算法内部处理
+算法会根据传递进来的迭代器来分析出迭代器种类，不同种类的迭代器，算法会有不同的处理，编写不同的代码应对；
+这种编写不同的代码来处理不同种类的迭代器，能够直接影响到算法的执行效率，如遇到随机存储迭代器，则可以通过跳跃的方式取值，而前向迭代器
+则只能++
+
+### 例子
+#### for_each
+
+	void myfunc(int i)
+	{
+		cout<<i<<endl;
+	}
+
+	void func()
+	{
+		vector<int> myvector={10,20,30,40,50};
+		for_each(myvector.begin(),myvector.end(),myfunc);
+	}
+
+	template<class InputIterator, class Function>
+	Function for_each(InputIterator first, InputIterator last, Function f)
+	{
+		for(;first!=last;++first)
+		{
+			f(*first);
+		}
+		return f;
+	}
+
+	这段代码表明两个问题：
+	a)算法区分迭代器种类，这个种类决定着算法的效率
+	b) f是一个可调用对象
+
+#### find
+//如果容器有自己的同名成员函数，优先使用自己的成员函数
+void func()
+{
+	vector<int> myvector={10,20,30,40,50};
+	vector<int>::iterator finditer=find(myvector.begin(),myvector.end,400);
+	if(finditer!=myvector.end())
+	{
+		//找到了
+	}else
+	{
+		//没找到
+	}
+
+	map<int,string> mymap;
+	mymap.insert(std::make_pair(1,"m"));
+	mymap.insert(std::make_pair(1,"n"));
+	auto iter=mymap.find(2);//自己的成员函数，通常前两个参数就不再是迭代器区间了
+	if(iter!=mymap.end())
+	{
+		
+	}
+
+
+	auto result=find_if(myvector.begin(),myvector.end(), [](int val)
+	{
+		if(val>50)
+			return true;
+		return false;
+	}
+	if(result==myvector.end())
+	{
+		cout<<"not find"<<std::endl;
+	}
+);
+
+}
+
+
+#### sort
+vector<int> myvector={50,45,23,89}
+sort(myvector.begin(),myvector.end());//缺省按照从小到大的顺序排列
+sort(myvector.begin(),myvector.begin()+3);
+
+sort(myvector.begin(),myvector.end(),myfunc);//自定义函数去决定顺序
+
+class A
+{
+	public:
+		bool operator()(int i, int j)
+		{
+			return i>j;
+		}
+}
+
+A mya;
+sort(myvector.begin(),myvector.end(),mya);
+
+list不支持排序算法，但有自己的sort成员函数。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
