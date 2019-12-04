@@ -115,6 +115,8 @@ void func()
 这种编写不同的代码来处理不同种类的迭代器，能够直接影响到算法的执行效率，如遇到随机存储迭代器，则可以通过跳跃的方式取值，而前向迭代器
 则只能++
 
+#include <algorithm>
+
 ### 例子
 #### for_each
 
@@ -203,10 +205,67 @@ sort(myvector.begin(),myvector.end(),mya);
 
 list不支持排序算法，但有自己的sort成员函数。
 
+### 函数对象
++ 函数: void func(int x){...}
++ 可调用对象　ｃlass A {public: void operator()(int x){}}
++ lambda表达式{}(int x){}
+
+### 标准库中定义的函数对象
+#include <functional>
+标准库中也给我们提供了很多可以现成拿来使用的函数对象.
++ 算术运算类
+	
+	+ negate<type>() -param
+	+ plus<type>() param1+param2
+	+ minus<type>() param1-param2
+	+ multiplies<type>() param1*param2
+	+ devides<type>() param1/param2
+	+ modulus<type>() param1%param2
+
++ 关系运算类
+	
+	+ equal_to<type>()	param1==param2
+	+ not_equal_to<type>()	param1!=param2
+	+ less<type>()	param1<param2
+	+ greater<type>()	param1>param2	
+	+ less_equal<type>()	param1<=param2
+	+ greater_equal<type>() 	param1>=param2
+
++ 逻辑运算类
+	+ logical_not<type>()	!param
+	+ logical_and<type>()	param1&&param2
+	+ logical_or<type>()	param1||param2
+
++ 位运算类
+	+ bit_and<type>()	param1&param2
+	+ bit_or<type>()	param1 | param2
+	+ bit_xor<type>()	param1 ^ param2
+
+	sort(myvector.begin(),myvector.end(),std::greater<int>())//生成临时对象，属于函数对象中的第二类，可调用对象 函数对象
 
 
+### 适配器
+#### 基本概念
++ 作用类似转接头，把一个既有的东西，进行适当改造，增加点东西或者减少点东西，就构成了一个适配器，
+三种适配器：容器适配器，算法适配器，迭代器适配器
++ 容器适配器： stack和queue都是属于减少版deque
++ 算法适配器：最典型的就是绑定器 binder
+	+ 绑定器 bind
+		bind(less<int>(),40,placeholders::_1);
+		//less<int> 的operator()的第一个参数绑定为40，那当调用less<int>()这个可调用对象的时候，
+		//第二个参数就用这里的placeholders::_1表示，在调用这个函数的时候，被传入的第一个参数所取代.
+		auto bf=bind(less<int>(),40,placeholders::_1);
+		bf(19);
 
 
+		count_if(myvector.begin(),myvector.end(),bind(less<int>(),40,placeholders::_1));
+
++ 迭代器适配器
+	vector<int> iv={100,200};
+	for(vector<int>::reverse_iterator riter=iv.rbegin();riter!=iv.rend();++riter)
+	{
+		cout<<*riter<<endl;
+	}		
 
 
 
